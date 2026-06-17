@@ -5,114 +5,114 @@ using AttendanceTrackingApi.Utilities;
 
 namespace AttendanceTrackingApi.Services.Application.Implimentations
 {
-    public class AdminService : IEmployeeServices
+    public class AdminService : IAdminService
     {
-        private readonly IEmployeeRepository _employeeRepository;
-        public AdminService(IEmployeeRepository employeeRepository)
+        private readonly IAdminRepository _adminRepository;
+        public AdminService(IAdminRepository adminRepository)
         {
-            _employeeRepository = employeeRepository;
+            _adminRepository = adminRepository;
         }
-        public async Task<BaseResponse<string>> DeleteAsync(int id)
+
+        public async Task<BaseResponse<string>> DeleteAsync(string id)
         {
             var response = new BaseResponse<string>();
-            var employee = await _employeeRepository.GetByIdAsync(id);
-
-            if(employee is null)
-            {
-                response.Success = false;
-                response.Message = "Employee not found";
-                return response;
-            }
 
             try
             {
-                await _employeeRepository.DeleteAsync(employee);
-                response.Message = "Delete successful";
+                var admin = await _adminRepository.GetByIdAsync(id);
+                if(admin is null)
+                {
+                    response.Success = false;
+                    response.Message = "Admin not found";
+                    return response;
+                }
+
+                await _adminRepository.DeleteAsync(admin);
+
+                response.Message = "Admin deleted successfully";
             }
 
             catch(Exception ex)
             {
-                response.Message = $"Failed to delete employee: {ex.Message}";
+                response.Success = false;
+                response.Message = $"Failed to delete admin: {ex.Message}";
             }
+
             return response;
         }
 
-        public async Task<BaseResponse<List<RegisterEmployeeResponseDto>>> GetAllAsync(int pageNumber = 1, int pageSize = 10)
+        public async Task<BaseResponse<List<RegisterAdminResponseDto>>> GetAllAsync(int pageNumber = 1, int pageSize = 10)
         {
-            var response = new BaseResponse<List<RegisterEmployeeResponseDto>>();
+            var response = new BaseResponse<List<RegisterAdminResponseDto>>();
 
             try
             {
-                var employees = await _employeeRepository.GetAllAsync(1 , 10);
+                var admins = await _adminRepository.GetAllAsync(pageNumber , pageSize);
 
-                if (!employees.Any())
+                if (!admins.Any())
                 {
                     response.Success = false;
-                    response.Message = "Employees not found";
+                    response.Message = "No records found";
                     return response;
                 }
 
-                response.Data = employees.Select(e => new RegisterEmployeeResponseDto
+                response.Data = admins.Select( a => new RegisterAdminResponseDto
                 {
-                    id = e.id,
-                    FirstName = e.FirstName,
-                    LastName = e.LastName,
-                    Email = e.Email,
-                    PhoneNumber = e.PhoneNumber,
-                    Department = e.Department
-                }).ToList();
-
-                response.Message = "Data retrieved successfully";
-
+                    id = a.Id,
+                    FirstName = a.FirstName,
+                    LastName = a.LastName,
+                    Email = a.Email ?? string.Empty,
+                    PhoneNumber = a.PhoneNumber ?? string.Empty
+                }).ToList();              
             }
 
-            catch( Exception ex)
+            catch(Exception ex)
             {
                 response.Success = false;
-                response.Message = $"An error occured: {ex.Message}";
+                response.Message = $"Failed to reftreive data: {ex.Message}";
             }
 
             return response;
         }
 
-        public async Task<BaseResponse<RegisterEmployeeResponseDto>> GetByIdAsync(int id)
+        public async Task<BaseResponse<RegisterAdminResponseDto>> GetByIdAsync(string id)
         {
-            var response = new BaseResponse<RegisterEmployeeResponseDto>();
+            var response = new BaseResponse<RegisterAdminResponseDto>();
 
             try
             {
-                var employee = await _employeeRepository.GetByIdAsync(id);
-                if(employee is null)
+                var admin = await _adminRepository.GetByIdAsync(id);
+
+                if(admin is null)
                 {
-                    response.Message = "Employee not found";
                     response.Success = false;
+                    response.Message = "Record not found";
                     return response;
                 }
 
-                response.Data = new RegisterEmployeeResponseDto
+                response.Data = new RegisterAdminResponseDto
                 {
-                    id = employee.id,
-                    FirstName = employee.FirstName,
-                    LastName = employee.LastName,
-                    Email = employee.Email,
-                    PhoneNumber = employee.PhoneNumber,
-                    Department = employee.Department
+                    id = admin.Id,
+                    FirstName = admin.FirstName,
+                    LastName = admin.LastName,
+                    Email = admin.Email ?? string.Empty,
+                    PhoneNumber = admin.PhoneNumber ?? string.Empty
                 };
-                response.Message = "Data retrived successfully";
+
+                response.Message = "Admin retrived successfully";
             }
 
             catch(Exception ex)
             {
-                response.Message = $"Failed to fetch data: {ex.Message}";
                 response.Success = false;
+                response.Message = $"Failed to retrieve data {ex.Message}";
             }
-
             return response;
         }
 
-        public async Task<BaseResponse<RegisterEmployeeResponseDto>> RegisterAsync(RegisterEmployeeRequestDto dto)
+        public async Task<BaseResponse<RegisterAdminResponseDto>> RegisterAsync(RegisterAdminRequestDto dto)
         {
-            var response = new BaseResponse<RegisterEmployeeResponseDto>();
+            var response = new BaseResponse<RegisterAdminResponseDto>();
 
             if(dto is null)
             {
@@ -121,72 +121,94 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
                 return response;
             }
 
+
+            if(dto.PassWord != dto.ConfrimPassWord)
+            {
+                response.Success = false;
+                response.Message = "Passwords do not match";
+                return response;
+            }
+
+            Admin admin = new()
+            {
+                UserName = dto.Email,
+                FirstName = dto.FirstName,
+                LastName = dto.LastName,
+                Email = dto.Email,
+                PhoneNumber = dto.PhoneNumber,
+            };
+
+            try
+            {
+                var createResult = await _adminRepository.AddAsync(admin, dto.PassWord);
+
+                if (!createResult.Succeeded)
+                {
+                    response.Success = false;
+                    response.Message = string.Join("; ", createResult.Errors.Select(e => e.Description));
+                    return response;
+                }
+
+                response.Data = new RegisterAdminResponseDto
+                {
+                    id = admin.Id,
+                    FirstName = admin.FirstName,
+                    LastName = admin.LastName,
+                    Email = admin.Email ?? string.Empty,
+                    PhoneNumber = admin.PhoneNumber
+                };
+
+                response.Message = "Admin created successfully";
+            }
+
+            catch(Exception ex)
+            {
+                response.Success = false;
+                response.Message = $"Failed to create admin: {ex.Message}";
+            }
             
-
-            Employee employee = new()
-            {
-                FirstName = dto.FirstName,
-                LastName = dto.LastName,
-                Email = dto.Email,
-                PhoneNumber = dto.PhoneNumber,
-                Department = dto.Department
-            };
-
-            try
-            {
-                await _employeeRepository.AddAsync(employee);
-
-                response.Data = new RegisterEmployeeResponseDto
-                {
-                    id = employee.id,
-                    FirstName = employee.FirstName,
-                    LastName = employee.LastName,
-                    Email = employee.Email,
-                    PhoneNumber = employee.PhoneNumber,
-                    Department = employee.Department
-                };
-                response.Message = "Employee created successfully";
-            }
-            catch(Exception ex)
-            {
-                response.Message = $"Failed to create employee: {ex.Message}";
-                response.Success = false;
-            }
-
             return response;
         }
 
-        public async Task<BaseResponse<string>> UpdateAsync(int id, UpdateEmployeeRequestDto dto)
+     
+
+        public async Task<BaseResponse<string>> UpdateAsync(string id, UpdateAdminRequestDto dto)
         {
             var response = new BaseResponse<string>();
 
             if(dto is null)
             {
-                response.Message = "Provide valid data to continue";
                 response.Success = false;
+                response.Message = "Provide valid data to continue";
                 return response;
             }
 
-            Employee employee = new()
-            {
-                FirstName = dto.FirstName,
-                LastName = dto.LastName,
-                Email = dto.Email,
-                PhoneNumber = dto.PhoneNumber,
-                Department = dto.Department
-            };
-
             try
             {
-                await _employeeRepository.UpdateAsync(employee);
+                var admin = await _adminRepository.GetByIdAsync(id);
+
+                if(admin is null)
+                {
+                    response.Success = false;
+                    response.Message = "Record not found";
+                    return response;
+                }
+
+                admin.FirstName = dto.FirstName;
+                admin.LastName = dto.LastName;
+                admin.Email = dto.Email;
+                admin.PhoneNumber = dto.PhoneNumber;
+
+                await _adminRepository.UpdateAsync(admin);
 
                 response.Message = "Update successful";
+
             }
 
             catch(Exception ex)
             {
                 response.Success = false;
-                response.Message = $"Update failed: {ex.Message}";
+                response.Message = $"Failed to update: {ex.Message}";
             }
 
             return response;

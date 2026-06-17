@@ -9,10 +9,15 @@ public class RegisterAdminRequestDto
     public string LastName {get ; set;} = string.Empty;
     [EmailAddress]
     [Required]
-    public string Email {get ; set;} = string.Empty;
+    public required string Email {get ; set;} 
     [DataType(DataType.PhoneNumber)]
     public string PhoneNumber {get;set;} = string.Empty;
-    [MaxLength(100)]
-    public string Department {get;set;} = string.Empty;
+    [Required]
+    [DataType(DataType.Password)]
+    public required string PassWord {get ;set;}
+    [Required]
+    [DataType(DataType.Password)]
+    [Compare("PassWord")]
+    public required string ConfrimPassWord {get ;set;}
 
 }

@@ -30,9 +30,11 @@ builder.Services.AddIdentity<Admin, IdentityRole>()
 
 //App services
 builder.Services.AddScoped<IEmployeeServices ,EmployeeService>();
+builder.Services.AddScoped<IAdminService , AdminService>();
 
 //Repository services
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 
 var app = builder.Build();
 

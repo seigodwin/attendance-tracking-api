@@ -1,38 +1,53 @@
 
+using AttendanceTrackingApi.DbContext;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+
 public class AdminRepository : IAdminRepository
 {
-    public Task AddAsync(Admin model)
+    private readonly UserManager<Admin> _userManager;
+    private readonly AppDbContext _context;
+
+    public AdminRepository(UserManager<Admin> userManager, AppDbContext context)
     {
-        throw new NotImplementedException();
+        _userManager = userManager;
+        _context = context;
     }
 
-    public Task<bool> AddToRolesAsync(string roleName, Admin model)
+    public async Task<IdentityResult> AddAsync(Admin model , string Password)
     {
-        throw new NotImplementedException();
+        var result = await _userManager.CreateAsync(model , Password);
+        return result;
     }
 
-    public Task DeleteAsync(string id)
+    public async Task AddToRolesAsync(Admin model , List<string> roles)
     {
-        throw new NotImplementedException();
+        await _userManager.AddToRolesAsync(model , roles);
+        await _context.SaveChangesAsync();
     }
 
-    public Task<List<Admin>> GetAllAsync(int pageNumber = 1, int pageSize = 10)
+    public async Task DeleteAsync(Admin model)
     {
-        throw new NotImplementedException();
+        await _userManager.DeleteAsync(model);
+        await _context.SaveChangesAsync();
     }
 
-    public Task<Admin?> GetById(string id)
+    public async Task<List<Admin>> GetAllAsync(int pageNumber = 1, int pageSize = 10)
     {
-        throw new NotImplementedException();
+        return await _context.Users.Skip((pageNumber -1 ) * pageSize)
+                              .Take(pageSize)
+                                .ToListAsync();
     }
 
-    public Task<bool> RoleExistsAsync(string roleName, Admin model)
+    public async Task<Admin?> GetByIdAsync(string id)
     {
-        throw new NotImplementedException();
+        return await _userManager.FindByIdAsync(id);
     }
 
-    public Task UpdateAsync(string id, Admin model)
+
+    public async Task UpdateAsync(Admin model)
     {
-        throw new NotImplementedException();
+        await _userManager.UpdateAsync(model);
+        await _context.SaveChangesAsync();
     }
 }

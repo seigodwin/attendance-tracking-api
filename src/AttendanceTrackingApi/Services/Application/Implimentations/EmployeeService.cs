@@ -43,7 +43,7 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
 
             try
             {
-                var employees = await _employeeRepository.GetAllAsync(1 , 10);
+                var employees = await _employeeRepository.GetAllAsync(pageNumber , pageSize);
 
                 if (!employees.Any())
                 {

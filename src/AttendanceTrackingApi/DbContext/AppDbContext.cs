@@ -1,4 +1,5 @@
 
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -51,6 +52,9 @@ namespace AttendanceTrackingApi.DbContext
             }
             );
         });
+
+        builder.Entity<Admin>().HasIndex(a =>a.Email).IsUnique();
+        builder.Entity<Admin>().HasIndex(a =>a.PhoneNumber).IsUnique();
         
     }
 }
