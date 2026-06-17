@@ -5,10 +5,10 @@ using AttendanceTrackingApi.Utilities;
 
 namespace AttendanceTrackingApi.Services.Application.Implimentations
 {
-    public class EmployeeService : IEmployeeServices
+    public class AdminService : IEmployeeServices
     {
         private readonly IEmployeeRepository _employeeRepository;
-        public EmployeeService(IEmployeeRepository employeeRepository)
+        public AdminService(IEmployeeRepository employeeRepository)
         {
             _employeeRepository = employeeRepository;
         }
@@ -121,6 +121,7 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
                 return response;
             }
 
+            
 
             Employee employee = new()
             {
