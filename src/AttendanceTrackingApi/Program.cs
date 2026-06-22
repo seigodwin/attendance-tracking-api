@@ -1,15 +1,21 @@
 using AttendanceTrackingApi.DbContext;
+using AttendanceTrackingApi.Options;
 using AttendanceTrackingApi.Services.Application.Implimentations;
 using AttendanceTrackingApi.Services.Application.Interfaces;
 using AttendanceTrackingApi.Services.Repository.Implimentations;
 using AttendanceTrackingApi.Services.Repository.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
 using Scalar.AspNetCore;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+DotNetEnv.Env.Load();
+builder.Configuration.AddEnvironmentVariables();
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -35,6 +41,32 @@ builder.Services.AddScoped<IAdminService , AdminService>();
 //Repository services
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
+
+
+//Jwt Options
+builder.Services.Configure<JwtOptions>( o =>
+{
+    o.SECRET = builder.Configuration["JWT_SECRET"] ?? throw new InvalidOperationException("Jwt secret is not configured");
+    o.ISSUER = builder.Configuration["JWT_ISSUER"] ?? throw new InvalidOperationException("Jwt Issuer is not configured");
+    o.AUDIENCE = builder.Configuration["JWT_AUDIENCE"] ?? throw new InvalidOperationException("Jwt Audience is not configured");
+    o.EXPIRATION = int.Parse(builder.Configuration["JWT_EXPIRATION"] ?? throw new InvalidOperationException("Jwt Issuer is not configured"));
+});
+
+
+
+var redisHost = builder.Configuration["REDIS_HOST"] ?? throw new InvalidOperationException("Redis connection string is not configured");
+
+//Configure IStackExchangeRedis Cache
+builder.Services.AddSingleton<IConnectionMultiplexer>(
+    ConnectionMultiplexer.Connect(redisHost)
+);
+
+//Configure IDistributedCacheRedis 
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = redisHost;
+    options.InstanceName = "attendance-tracking-api:";
+});
 
 var app = builder.Build();
 

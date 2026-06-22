@@ -1,12 +1,13 @@
 
 using AttendanceTrackingApi.Dtos.Domain.Dtos.AuthDtos;
+using AttendanceTrackingApi.Utilities;
 
 namespace AttendanceTrackingApi.Services.Auth.Interface
 {
-	public interface IJwtService
+	public interface ITokenService
 	{
 		Task<AuthenticatedUserDto> GenerateTokenPairAsync(Admin model);
-		Task RefreshAccessTokenAsync(RefreshAccessTokenRequestDto dto);
+		Task<BaseResponse<string>> RefreshAccessTokenAsync(RefreshAccessTokenRequestDto dto);
 	}
 
 }
