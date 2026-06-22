@@ -20,7 +20,6 @@ builder.Configuration.AddEnvironmentVariables();
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
-
 //Dbcontext
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Db connection string not configured");
 
@@ -51,7 +50,6 @@ builder.Services.Configure<JwtOptions>( o =>
     o.AUDIENCE = builder.Configuration["JWT_AUDIENCE"] ?? throw new InvalidOperationException("Jwt Audience is not configured");
     o.EXPIRATION = int.Parse(builder.Configuration["JWT_EXPIRATION"] ?? throw new InvalidOperationException("Jwt Issuer is not configured"));
 });
-
 
 
 var redisHost = builder.Configuration["REDIS_HOST"] ?? throw new InvalidOperationException("Redis connection string is not configured");

@@ -7,7 +7,7 @@ namespace AttendanceTrackingApi.Services.Auth.Interface
 	public interface ITokenService
 	{
 		Task<AuthenticatedUserDto> GenerateTokenPairAsync(Admin model);
-		Task<BaseResponse<string>> RefreshAccessTokenAsync(RefreshAccessTokenRequestDto dto);
+		Task<AuthenticatedUserDto> RefreshAccessTokenAsync(RefreshAccessTokenRequestDto dto);
 	}
 
 }
