@@ -1,12 +1,15 @@
+using System.Text;
 using AttendanceTrackingApi.DbContext;
 using AttendanceTrackingApi.Options;
 using AttendanceTrackingApi.Services.Application.Implimentations;
 using AttendanceTrackingApi.Services.Application.Interfaces;
 using AttendanceTrackingApi.Services.Repository.Implimentations;
 using AttendanceTrackingApi.Services.Repository.Interfaces;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using StackExchange.Redis;
 
@@ -64,6 +67,27 @@ builder.Services.AddStackExchangeRedisCache(options =>
 {
     options.Configuration = redisHost;
     options.InstanceName = "attendance-tracking-api:";
+});
+
+
+//Jwt Authentication
+builder.Services.AddAuthentication( o =>
+{
+    o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer( o =>
+{
+    o.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ClockSkew = TimeSpan.Zero,
+        ValidIssuer = builder.Configuration["JWT_ISSUER"] ?? throw new InvalidOperationException("Jwt issuer no configured"),
+        ValidAudience = builder.Configuration["JWT_AUDIENCE"] ?? throw new InvalidOperationException("Jwt audience not configured"),
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT_SECRET"] ?? throw new InvalidOperationException("Jwt secret not configured"))) 
+    };
 });
 
 var app = builder.Build();
