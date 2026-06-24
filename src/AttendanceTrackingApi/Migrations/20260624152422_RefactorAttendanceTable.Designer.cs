@@ -3,6 +3,7 @@ using System;
 using AttendanceTrackingApi.DbContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AttendanceTrackingApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260624152422_RefactorAttendanceTable")]
+    partial class RefactorAttendanceTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -149,9 +152,6 @@ namespace AttendanceTrackingApi.Migrations
 
                     b.HasKey("Id")
                         .HasName("pK_attendances");
-
-                    b.HasIndex("AttendanceDate")
-                        .HasDatabaseName("iX_attendances_attendanceDate");
 
                     b.HasIndex("EmployeeId")
                         .HasDatabaseName("iX_attendances_employeeId");

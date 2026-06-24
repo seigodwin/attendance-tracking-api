@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using AttendanceTrackingApi.DbContext;
 using AttendanceTrackingApi.Options;
 using AttendanceTrackingApi.Services.Application.Implimentations;
@@ -113,4 +113,3 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
-

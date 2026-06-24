@@ -54,7 +54,7 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
 
                 response.Data = employees.Select(e => new RegisterEmployeeResponseDto
                 {
-                    id = e.id,
+                    id = e.Id,
                     FirstName = e.FirstName,
                     LastName = e.LastName,
                     Email = e.Email,
@@ -91,7 +91,7 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
 
                 response.Data = new RegisterEmployeeResponseDto
                 {
-                    id = employee.id,
+                    id = employee.Id,
                     FirstName = employee.FirstName,
                     LastName = employee.LastName,
                     Email = employee.Email,
@@ -137,7 +137,7 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
 
                 response.Data = new RegisterEmployeeResponseDto
                 {
-                    id = employee.id,
+                    id = employee.Id,
                     FirstName = employee.FirstName,
                     LastName = employee.LastName,
                     Email = employee.Email,

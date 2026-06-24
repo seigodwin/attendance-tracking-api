@@ -4,7 +4,7 @@ using AttendanceTrackingApi.Domain.Entities;
 public class Employee
 {
     [Key]
-    public int id {get;set;}
+    public int Id {get;set;}
     [MaxLength(50)]
     public string FirstName {get;set;} = string.Empty;
     [MaxLength(50)]

@@ -21,15 +21,15 @@ namespace AttendanceTrackingApi.DbContext
         {
             entity.HasIndex(e => e.Email).IsUnique();
 
-             entity.HasMany<Attendance>(e => e.Attendances)
-            .WithOne( a => a.employee)
+            entity.HasMany<Attendance>(e => e.Attendances)
+            .WithOne( a => a.Employee)
             .HasForeignKey(a => a.EmployeeId);
             
             entity.HasData
             (
             new Employee
             {
-                id = 1,
+                Id = 1,
                 FirstName = "Sei",
                 LastName = "Godwin",
                 Email = "seigodwin65@gmail.com",
@@ -39,7 +39,7 @@ namespace AttendanceTrackingApi.DbContext
 
               new Employee
             {
-                id = 2,
+                Id = 2,
                 FirstName = "Sei",
                 LastName = "Ray",
                 Email = "ray65@gmail.com",
@@ -49,7 +49,7 @@ namespace AttendanceTrackingApi.DbContext
 
               new Employee
             {
-                id = 3,
+                Id = 3,
                 FirstName = "Sei",
                 LastName = "Jane",
                 Email = "jane65@gmail.com",
@@ -61,6 +61,8 @@ namespace AttendanceTrackingApi.DbContext
 
         builder.Entity<Admin>().HasIndex(a =>a.Email).IsUnique();
         builder.Entity<Admin>().HasIndex(a =>a.PhoneNumber).IsUnique();
+
+        builder.Entity<Attendance>().HasIndex( a => a.AttendanceDate);
     }
 }
 }
