@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using AttendanceTrackingApi.Domain.Entities;
 
 public class Employee
 {
@@ -14,5 +15,6 @@ public class Employee
     public string PhoneNumber {get;set;} = string.Empty;
     [MaxLength(100)]
     public string Department {get;set;} = string.Empty;
+    public List<Attendance> Attendances {get ; set;} = new ();
 
 }

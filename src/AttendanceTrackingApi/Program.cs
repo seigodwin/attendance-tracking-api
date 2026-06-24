@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using AttendanceTrackingApi.DbContext;
 using AttendanceTrackingApi.Options;
 using AttendanceTrackingApi.Services.Application.Implimentations;
@@ -58,9 +58,9 @@ builder.Services.Configure<JwtOptions>( o =>
 var redisHost = builder.Configuration["REDIS_HOST"] ?? throw new InvalidOperationException("Redis connection string is not configured");
 
 //Configure IStackExchangeRedis Cache
-builder.Services.AddSingleton<IConnectionMultiplexer>(
-    ConnectionMultiplexer.Connect(redisHost)
-);
+// builder.Services.AddSingleton<IConnectionMultiplexer>(
+//     ConnectionMultiplexer.Connect(redisHost)
+// );
 
 //Configure IDistributedCacheRedis 
 builder.Services.AddStackExchangeRedisCache(options =>
@@ -113,3 +113,4 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+

@@ -1,4 +1,5 @@
 
+using AttendanceTrackingApi.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -11,13 +12,18 @@ namespace AttendanceTrackingApi.DbContext
 
     public DbSet<Employee> Employees {get;set;}
 
+    public DbSet<Attendance> Attendances {get ; set;}
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
-
-        builder.Entity<Employee>( entity =>
+ 
+        builder.Entity<Employee>( entity => 
         {
             entity.HasIndex(e => e.Email).IsUnique();
+
+             entity.HasMany<Attendance>(e => e.Attendances)
+            .WithOne( a => a.employee)
+            .HasForeignKey(a => a.EmployeeId);
             
             entity.HasData
             (
@@ -55,7 +61,6 @@ namespace AttendanceTrackingApi.DbContext
 
         builder.Entity<Admin>().HasIndex(a =>a.Email).IsUnique();
         builder.Entity<Admin>().HasIndex(a =>a.PhoneNumber).IsUnique();
-        
     }
 }
 }

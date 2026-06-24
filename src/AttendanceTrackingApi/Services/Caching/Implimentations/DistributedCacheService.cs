@@ -13,10 +13,9 @@ namespace AttendanceTrackingApi.Services.Caching.Implimentations
             _cache = cache;
         }
 
-
         public async Task<T?> GetAsync<T>(string key)
         {
-          if (string.IsNullOrEmpty(key)) return default;
+           if (string.IsNullOrEmpty(key)) return default;  
            
            var data = await _cache.GetStringAsync(key);
 
@@ -29,22 +28,22 @@ namespace AttendanceTrackingApi.Services.Caching.Implimentations
         {
             if (string.IsNullOrEmpty(key)) return;
            
-           await _cache.RemoveAsync(key);
+            await _cache.RemoveAsync(key);
         }
 
         public async Task SetAsync<T>(string key, T? value, TimeSpan? slidingExpiration = null, TimeSpan? absoluteExpiration = null)
         {
            if (string.IsNullOrEmpty(key) || value is null) return;
            
-           var options = new DistributedCacheEntryOptions();
+            var options = new DistributedCacheEntryOptions();
             if (slidingExpiration.HasValue)
             {
                 options.SlidingExpiration = slidingExpiration;
             }
 
-            if (absoluteExpiration.HasValue)
-            {
-                options.AbsoluteExpirationRelativeToNow = absoluteExpiration;
+            if (absoluteExpiration.HasValue) 
+            {   
+                options.AbsoluteExpirationRelativeToNow = absoluteExpiration; 
             }
 
             var jsonData = JsonSerializer.Serialize(value);
