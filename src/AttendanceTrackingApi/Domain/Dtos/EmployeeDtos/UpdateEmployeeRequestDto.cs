@@ -7,7 +7,11 @@ public class UpdateEmployeeRequestDto
     [MaxLength(50)]
     public string LastName {get ; set;} = string.Empty;
     [EmailAddress]
-    public string Email {get ; set;} = string.Empty;
+    [Required]
+    public required string Email {get ; set;} 
+    [Required]
+    [MaxLength(30)]
+    public required string StaffId {get ; set;}
     [DataType(DataType.PhoneNumber)]
     public string PhoneNumber {get;set;} = string.Empty;
     [MaxLength(100)]

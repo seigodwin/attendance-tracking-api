@@ -34,7 +34,8 @@ namespace AttendanceTrackingApi.DbContext
                 LastName = "Godwin",
                 Email = "seigodwin65@gmail.com",
                 PhoneNumber = "0540580393",
-                Department = "IT"
+                Department = "IT",
+                StaffId = "Ghmis01"
             },
 
               new Employee
@@ -44,7 +45,8 @@ namespace AttendanceTrackingApi.DbContext
                 LastName = "Ray",
                 Email = "ray65@gmail.com",
                 PhoneNumber = "0540580393",
-                Department = "Reception"
+                Department = "Reception",
+                StaffId = "Ghims02"
             },
 
               new Employee
@@ -54,7 +56,8 @@ namespace AttendanceTrackingApi.DbContext
                 LastName = "Jane",
                 Email = "jane65@gmail.com",
                 PhoneNumber = "0540580393",
-                Department = "IT"
+                Department = "IT",
+                StaffId = "Ghims03"
             }
             );
         });

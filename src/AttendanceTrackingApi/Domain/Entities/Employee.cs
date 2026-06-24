@@ -10,7 +10,8 @@ public class Employee
     [MaxLength(50)]
     public string LastName {get ; set;} = string.Empty;
     [EmailAddress]
-    public string Email {get ; set;} = string.Empty;
+    public required string Email {get ; set;} 
+    public required string StaffId {get ; set; }
     [DataType(DataType.PhoneNumber)]
     public string PhoneNumber {get;set;} = string.Empty;
     [MaxLength(100)]

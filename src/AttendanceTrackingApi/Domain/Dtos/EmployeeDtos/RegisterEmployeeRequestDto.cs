@@ -9,7 +9,10 @@ public class RegisterEmployeeRequestDto
     public string LastName {get ; set;} = string.Empty;
     [EmailAddress]
     [Required]
-    public string Email {get ; set;} = string.Empty;
+    public required string Email {get ; set;} 
+    [Required]
+    [MaxLength(30)]
+    public required string StaffId {get ; set;}
     [DataType(DataType.PhoneNumber)]
     public string PhoneNumber {get;set;} = string.Empty;
     [MaxLength(100)]

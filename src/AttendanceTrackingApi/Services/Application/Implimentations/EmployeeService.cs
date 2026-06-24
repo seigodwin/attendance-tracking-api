@@ -128,7 +128,8 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
                 LastName = dto.LastName,
                 Email = dto.Email,
                 PhoneNumber = dto.PhoneNumber,
-                Department = dto.Department
+                Department = dto.Department,
+                StaffId = dto.StaffId
             };
 
             try
@@ -172,7 +173,8 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
                 LastName = dto.LastName,
                 Email = dto.Email,
                 PhoneNumber = dto.PhoneNumber,
-                Department = dto.Department
+                Department = dto.Department,
+                StaffId = dto.StaffId
             };
 
             try
