@@ -20,6 +20,7 @@ namespace AttendanceTrackingApi.DbContext
         builder.Entity<Employee>( entity => 
         {
             entity.HasIndex(e => e.Email).IsUnique();
+            entity.HasIndex(e => e.Department);
 
             entity.HasMany<Attendance>(e => e.Attendances)
             .WithOne( a => a.Employee)

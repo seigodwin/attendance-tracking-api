@@ -30,6 +30,7 @@ namespace AttendanceTrackingApi.Services.Repository.Implimentations
         public async Task<List<Attendance>> FilterByDateAsync(DateOnly date, int pageNumber = 1, int pageSize = 10)
         {
             return await _context.Attendances.AsNoTracking()
+                                                .Include(a => a.Employee)
                                                 .Where(a => a.AttendanceDate == date)
                                                 .OrderByDescending(a => a.Id)
                                                 .Skip(( pageNumber - 1) * pageSize)
@@ -40,6 +41,7 @@ namespace AttendanceTrackingApi.Services.Repository.Implimentations
         public async Task<List<Attendance>> FilterByDateIntervalAsync(DateOnly startDate, DateOnly endDate, int pageNumber = 1, int PageSize = 10)
         {
             return await _context.Attendances.AsNoTracking()
+                                             .Include(a => a.Employee)
                                              .Where(a => a.AttendanceDate >= startDate && a.AttendanceDate <= endDate)
                                              .OrderByDescending(a => a.AttendanceDate)
                                              .Skip(( pageNumber - 1) * PageSize)
