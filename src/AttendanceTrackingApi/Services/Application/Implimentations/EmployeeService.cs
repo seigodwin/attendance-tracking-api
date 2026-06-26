@@ -43,6 +43,9 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
 
             try
             {
+                pageNumber = pageNumber < 1 ? 1 : pageNumber;
+                pageSize = pageSize < 1 ? 10 : (pageSize > 30 ? 30 : pageSize);
+                
                 var employees = await _employeeRepository.GetAllAsync(pageNumber , pageSize);
 
                 if (!employees.Any())
