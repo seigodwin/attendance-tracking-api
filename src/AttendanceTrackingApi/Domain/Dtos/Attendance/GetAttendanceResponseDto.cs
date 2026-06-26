@@ -8,8 +8,8 @@ namespace AttendanceTrackingApi.Domain.Dtos.Attendance
         public string EmployeeFirstName {get ; set; } = string.Empty;
         public string EmployeeLastName {get ; set; } = string.Empty;
         public string EmployeeDepartment {get ; set; } = string.Empty;
-        public DateTime CheckInTime {get ; set;}
-        public DateTime? CheckOutTime {get ; set;}
+        public TimeOnly CheckInTime {get ; set;}
+        public TimeOnly? CheckOutTime {get ; set;}
         public DateOnly AttendanceDate {get ; set;}
     }
 }

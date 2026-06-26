@@ -32,12 +32,20 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
             var user = await _context.Employees.AsNoTracking()
                                                .FirstOrDefaultAsync(e => e.Email == dto.Email);
 
-            if(user is null)
+            if(user is null || string.IsNullOrEmpty(dto.Email) || string.IsNullOrEmpty(dto.StaffId))
             {
                 response.Success = false;
                 response.Message = "Account not found";
                 return response;
             }
+            
+            if(user.StaffId != dto.StaffId)
+            {
+                response.Success = false;
+                response.Message = "Invalid email or staff Id";
+                return response;
+            }
+
 
             var activeSignIn = await _context.Attendances.AsNoTracking()
                                                         .FirstOrDefaultAsync(a => a.Id == user.Id);
@@ -48,40 +56,190 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
                 return response;
             }
 
-            // Attendance attendance = new()
-            // {
-            //     CheckInTime = DateTime.
-            // }
+            var currentDateTime = DateTime.Now;
+
+            Attendance attendance = new()
+            {
+                CheckInTime = TimeOnly.FromDateTime(currentDateTime),
+                EmployeeId = user.Id,
+                AttendanceDate = DateOnly.FromDateTime(currentDateTime)
+            };
+
+            try
+            {
+                await _attendanceRepository.AddAsync(attendance);
+
+                response.Message = "Check in Successful";
+            }
+
+            catch(Exception ex)
+            {
+                response.Success = false;
+                response.Message = $"Check in failed: {ex.Message}";
+            }
 
             return response;
         }
 
-        public Task<BaseResponse<string>> CheckoutAsync(int id, CheckInOrOutRequestDto dto)
+        public async Task<BaseResponse<string>> CheckoutAsync(CheckInOrOutRequestDto dto)
+        {
+            var response = new BaseResponse<string>();
+
+            if(dto is null || string.IsNullOrEmpty(dto.Email) || string.IsNullOrEmpty(dto.StaffId))
+            {
+                response.Success = false;
+                response.Message = "Provide valid data to check out";
+                return response;
+            }
+
+            var employee = await _context.Employees.AsNoTracking().FirstOrDefaultAsync(a => a.Email == dto.Email);
+            
+            if(employee is null)
+            {
+                response.Success = false;
+                response.Message = "User not found";
+                return response;
+            }
+
+            var currentDateTime = DateTime.Now;
+
+            var todayAttendance = await _context.Attendances
+            .FirstOrDefaultAsync(a => a.EmployeeId == employee.Id && a.AttendanceDate == DateOnly.FromDateTime(currentDateTime));
+
+            if(todayAttendance is null)
+            {
+                response.Success = false;
+                response.Message = "No active check in found. Please check in and try agian";
+                return response;
+            }
+
+            if(todayAttendance.CheckOutTime is not null)
+            {
+                response.Success = false;
+                response.Message = "You have an active checkout. Please check in and try again";
+                return response;
+            }
+
+            todayAttendance.CheckOutTime = TimeOnly.FromDateTime(currentDateTime);
+
+            try
+            {
+                await _attendanceRepository.UpdateAsync(todayAttendance);
+
+                response.Message = "Check out successfull";
+            }
+
+            catch(Exception ex)
+            {
+                response.Success = false;
+                response.Message = $"Check out failed: {ex.Message}";
+            }
+
+            return response;
+        }
+
+        public async Task<BaseResponse<List<GetAttendanceResponseDto>>> FilterByDateAsync(DateOnly date, int pageNumber = 1, int PageSize = 10)
+        {
+            var response = new BaseResponse<List<GetAttendanceResponseDto>>();
+
+            pageNumber = pageNumber < 1 ? 1 : pageNumber;
+            PageSize = PageSize < 1 ? 10 : (PageSize > 30 ? 30 : PageSize);
+
+            try
+            {
+                var records = await _attendanceRepository.FilterByDateAsync(date , pageNumber , PageSize);
+
+                if (!records.Any())
+                {
+                    response.Success = false;
+                    response.Message = "No records found for specified date";
+                    return response;
+                }
+
+                response.Data = records.Select(r => new GetAttendanceResponseDto
+                {
+                    Id = r.Id,
+                    EmployeeFirstName = r.Employee.FirstName,
+                    EmployeeLastName = r.Employee.LastName,
+                    EmployeeDepartment = r.Employee.Department,
+                    CheckInTime = r.CheckInTime,
+                    CheckOutTime = r.CheckOutTime,
+                    AttendanceDate = r.AttendanceDate
+                }).ToList();
+
+                response.Message = "Records retrived successfully";
+            }
+
+            catch(Exception ex)
+            {
+                response.Success = false;
+                response.Message = $"Failed to retreive records: {ex.Message}";
+            }
+
+            return response;
+        }
+
+        public async Task<BaseResponse<List<GetAttendanceResponseDto>>> 
+        FilterByDateIntervalAsync(DateOnly startDate, DateOnly endDate, 
+        int pageNumber = 1, int PageSize = 10)
+        {
+            var response = new BaseResponse<List<GetAttendanceResponseDto>>();
+
+            pageNumber = pageNumber < 1 ? 1 : pageNumber;
+            PageSize = PageSize < 1 ? 10 : (PageSize > 30 ? 30 : PageSize);
+
+            if(startDate > endDate)
+            {
+                response.Success = false;
+                response.Message = "Start date cannot be greater than end date";
+                return response;
+            }
+
+            try
+            {
+                var records = await _attendanceRepository.FilterByDateIntervalAsync( startDate, endDate, pageNumber , PageSize);
+
+                if (!records.Any())
+                {
+                    response.Success = false;
+                    response.Message = "No records found for specified dates";
+                    return response;
+                }
+
+                response.Data = records.Select(r => new GetAttendanceResponseDto
+                {
+                    Id = r.Id,
+                    EmployeeFirstName = r.Employee.FirstName,
+                    EmployeeLastName = r.Employee.LastName,
+                    EmployeeDepartment = r.Employee.Department,
+                    CheckInTime = r.CheckInTime,
+                    CheckOutTime = r.CheckOutTime,
+                    AttendanceDate = r.AttendanceDate
+                }).ToList();
+
+                response.Message = "Records retrived successfully";
+            }
+
+            catch(Exception ex)
+            {
+                response.Success = false;
+                response.Message = $"Failed to retreive records: {ex.Message}";
+            }
+
+            return response;
+        }
+
+        public Task<BaseResponse<List<GetAttendanceResponseDto>>> FilterByEmployeeDeparmentAsync(string departmentName, int pageNumber = 1, int PageSize = 10)
         {
             throw new NotImplementedException();
         }
 
-        public Task<BaseResponse<List<Attendance>>> FilterByDateAsync(DateOnly date, int pageNumber = 1, int PageSize = 10)
+        public Task<BaseResponse<List<GetAttendanceResponseDto>>> GetAllAsync(int pageNumber = 1, int PageSize = 10)
         {
             throw new NotImplementedException();
         }
 
-        public Task<BaseResponse<List<Attendance>>> FilterByDateIntervalAsync(DateOnly firstDate, DateOnly secondDate, int pageNumber = 1, int PageSize = 10)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<BaseResponse<List<Attendance>>> FilterByDeparmentAsync(string departmentName, int pageNumber = 1, int PageSize = 10)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<BaseResponse<List<Attendance>>> GetAllAsync(int pageNumber = 1, int PageSize = 10)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<BaseResponse<Attendance?>> GetByIdAsync(int id)
+        public Task<BaseResponse<GetAttendanceResponseDto?>> GetByIdAsync(int id)
         {
             throw new NotImplementedException();
         }

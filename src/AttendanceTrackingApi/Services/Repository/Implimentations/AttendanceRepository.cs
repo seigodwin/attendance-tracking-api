@@ -78,5 +78,11 @@ namespace AttendanceTrackingApi.Services.Repository.Implimentations
                                             .Include(a => a.Employee) 
                                             .FirstOrDefaultAsync(a => a.Id == id);
         }
+
+        public async Task UpdateAsync(Attendance model)
+        {
+            _context.Attendances.Update(model);
+            await _context.SaveChangesAsync();
+        }
     }
 }
