@@ -10,26 +10,26 @@ namespace AttendanceTrackingApi.DbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) {}
 
-    public DbSet<Employee> Employees {get;set;}
+    public DbSet<Employee> Employees {get;set;} 
 
-    public DbSet<Attendance> Attendances {get ; set;}
-    protected override void OnModelCreating(ModelBuilder builder)
+    public DbSet<Attendance> Attendances {get ; set;} 
+    protected override void OnModelCreating(ModelBuilder builder) 
     {
-        base.OnModelCreating(builder);
+        base.OnModelCreating(builder);        
  
-        builder.Entity<Employee>( entity => 
+        builder.Entity<Employee>(entity =>   
         {
             entity.HasIndex(e => e.Email).IsUnique();
-            entity.HasIndex(e => e.Department);
+            entity.HasIndex(e => e.Department); 
 
             entity.HasMany<Attendance>(e => e.Attendances)
-            .WithOne( a => a.Employee)
-            .HasForeignKey(a => a.EmployeeId);
+            .WithOne( a => a.Employee) 
+            .HasForeignKey(a => a.EmployeeId); 
             
             entity.HasData
-            (
-            new Employee
-            {
+            (                     
+            new Employee     
+            {             
                 Id = 1,
                 FirstName = "Sei",
                 LastName = "Godwin",
@@ -61,7 +61,7 @@ namespace AttendanceTrackingApi.DbContext
                 StaffId = "Ghims03"
             }
             );
-        });
+        }); 
 
         builder.Entity<Admin>().HasIndex(a =>a.Email).IsUnique();
         builder.Entity<Admin>().HasIndex(a =>a.PhoneNumber).IsUnique();
