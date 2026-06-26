@@ -138,146 +138,7 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
             return response;
         }
 
-        public async Task<BaseResponse<List<GetAttendanceResponseDto>>> FilterByDateAsync(DateOnly date, int pageNumber = 1, int PageSize = 10)
-        {
-            var response = new BaseResponse<List<GetAttendanceResponseDto>>();
-
-            pageNumber = pageNumber < 1 ? 1 : pageNumber;
-            PageSize = PageSize < 1 ? 10 : (PageSize > 30 ? 30 : PageSize);
-
-            try
-            {
-                var records = await _attendanceRepository.FilterByDateAsync(date , pageNumber , PageSize);
-
-                if (!records.Any())
-                {
-                    response.Success = false;
-                    response.Message = "No records found for specified date";
-                    return response;
-                }
-
-                response.Data = records.Select(r => new GetAttendanceResponseDto
-                {
-                    Id = r.Id,
-                    EmployeeFirstName = r.Employee.FirstName,
-                    EmployeeLastName = r.Employee.LastName,
-                    EmployeeDepartment = r.Employee.Department,
-                    CheckInTime = r.CheckInTime,
-                    CheckOutTime = r.CheckOutTime,
-                    AttendanceDate = r.AttendanceDate
-                }).ToList();
-
-                response.Message = "Records retrived successfully";
-            }
-
-            catch(Exception ex)
-            {
-                response.Success = false;
-                response.Message = $"Failed to retreive records: {ex.Message}";
-            }
-
-            return response;
-        }
-
-        public async Task<BaseResponse<List<GetAttendanceResponseDto>>> 
-        FilterByDateIntervalAsync(DateOnly startDate, DateOnly endDate, 
-        int pageNumber = 1, int PageSize = 10)
-        {
-            var response = new BaseResponse<List<GetAttendanceResponseDto>>();
-
-            pageNumber = pageNumber < 1 ? 1 : pageNumber;
-            PageSize = PageSize < 1 ? 10 : (PageSize > 30 ? 30 : PageSize);
-
-            if(startDate > endDate)
-            {
-                response.Success = false;
-                response.Message = "Start date cannot be greater than end date";
-                return response;
-            }
-
-            try
-            {
-                var records = await _attendanceRepository.FilterByDateIntervalAsync( startDate, endDate, pageNumber , PageSize);
-
-                if (!records.Any())
-                {
-                    response.Success = false;
-                    response.Message = "No records found for specified dates";
-                    return response;
-                }
-
-                response.Data = records.Select(r => new GetAttendanceResponseDto
-                {
-                    Id = r.Id,
-                    EmployeeFirstName = r.Employee.FirstName,
-                    EmployeeLastName = r.Employee.LastName,
-                    EmployeeDepartment = r.Employee.Department,
-                    CheckInTime = r.CheckInTime,
-                    CheckOutTime = r.CheckOutTime,
-                    AttendanceDate = r.AttendanceDate
-                }).ToList();
-
-                response.Message = "Records retrived successfully";
-            }
-
-            catch(Exception ex)
-            {
-                response.Success = false;
-                response.Message = $"Failed to retreive records: {ex.Message}";
-            }
-
-            return response;
-        }
-
-        public async Task<BaseResponse<List<GetAttendanceResponseDto>>> FilterByEmployeeDeparmentAsync(string departmentName, int pageNumber = 1, int PageSize = 10)
-        {
-            var response = new BaseResponse<List<GetAttendanceResponseDto>>();
-
-            if (string.IsNullOrEmpty(departmentName))
-            {
-                response.Success = false;
-                response.Message = "Invalid department name";
-                return response;
-            }
-
-            pageNumber = pageNumber < 1 ? 1 : pageNumber;
-            PageSize = PageSize < 1 ? 1 : (PageSize < 30 ? 30 : PageSize);
-
-            try
-            {
-                 var records = await _attendanceRepository.FilterByDeparmentAsync(departmentName , pageNumber, PageSize);
-
-                if (!records.Any())
-                {
-                    response.Success = false;
-                    response.Message = "Data not found for the specified department";
-                    return response;
-                }
-
-                response.Data = records.Select(r => new GetAttendanceResponseDto
-                    {
-                        Id = r.Id,
-                        EmployeeFirstName = r.Employee.FirstName,
-                        EmployeeLastName = r.Employee.LastName,
-                        EmployeeDepartment = r.Employee.Department,
-                        CheckInTime = r.CheckInTime,
-                        CheckOutTime = r.CheckOutTime,
-                        AttendanceDate = r.AttendanceDate
-                }).ToList();
-
-                response.Message = "Records retrived successfully";
-            }
-
-            catch(Exception ex)
-            {
-                response.Success = false;
-                response.Message = $"Failed to fetch records: {ex.Message}";
-            }
-
-            return response;
-        }
-
-        public async Task<BaseResponse<List<GetAttendanceResponseDto>>> GetAllAsync(int pageNumber = 1, int PageSize = 10)
+        public async Task<BaseResponse<List<GetAttendanceResponseDto>>> GetAllAsync(AttendanceQueryParameters model, int pageNumber = 1, int PageSize = 10)
         {
             var response = new BaseResponse<List<GetAttendanceResponseDto>>();
 
@@ -286,7 +147,7 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
 
             try
             {
-                 var records = await _attendanceRepository.GetAllAsync(pageNumber, PageSize);
+                 var records = await _attendanceRepository.GetAllAsync(model , pageNumber, PageSize);
 
                 if (!records.Any())
                 {
@@ -350,7 +211,7 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
                 response.Success = false;
                 response.Message = $"Failed to fetch records: {ex.Message}";
             }
-            
+
             return response;
         }
     }

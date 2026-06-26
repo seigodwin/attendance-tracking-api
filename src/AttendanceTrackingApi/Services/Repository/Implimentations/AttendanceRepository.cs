@@ -1,5 +1,6 @@
 
 using AttendanceTrackingApi.DbContext;
+using AttendanceTrackingApi.Domain.Dtos.Attendance;
 using AttendanceTrackingApi.Domain.Entities;
 using AttendanceTrackingApi.Services.Repository.Interfaces;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -27,49 +28,33 @@ namespace AttendanceTrackingApi.Services.Repository.Implimentations
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<Attendance>> FilterByDateAsync(DateOnly date, int pageNumber = 1, int pageSize = 10)
+        public async Task<List<Attendance>> GetAllAsync(AttendanceQueryParameters model , int pageNumber, int pageSize)
         {
-            return await _context.Attendances.AsNoTracking()
-                                                .Include(a => a.Employee)
-                                                .Where(a => a.AttendanceDate == date)
-                                                .OrderByDescending(a => a.Id)
-                                                .Skip(( pageNumber - 1) * pageSize)
-                                                .Take(pageSize)
-                                                .ToListAsync();
-        }
- 
-        public async Task<List<Attendance>> FilterByDateIntervalAsync(DateOnly startDate, DateOnly endDate, int pageNumber = 1, int PageSize = 10)
-        {
-            return await _context.Attendances.AsNoTracking()
-                                             .Include(a => a.Employee)
-                                             .Where(a => a.AttendanceDate >= startDate && a.AttendanceDate <= endDate)
-                                             .OrderByDescending(a => a.AttendanceDate)
-                                             .Skip(( pageNumber - 1) * PageSize)
-                                             .Take(PageSize)
-                                             .ToListAsync();
-        }
+            var queryable = _context.Attendances.AsNoTracking();
 
-        public async Task<List<Attendance>> FilterByDeparmentAsync(string departmentName, int pageNumber = 1, int PageSize = 10)
-        {
-             return await _context.Attendances.AsNoTracking()
-                                             .Include(a => a.Employee)
-                                             .Where(a => a.Employee.Department == departmentName)
-                                             .OrderByDescending(a => a.AttendanceDate)
-                                             .ThenByDescending(a => a.Id)
-                                             .Skip(( pageNumber - 1) * PageSize)
-                                             .Take(PageSize)
-                                             .ToListAsync();
-        }
+            if (!string.IsNullOrEmpty(model.DepartmentName))
+            {
+                queryable = queryable.Where(a => a.Employee.Department == model.DepartmentName);
+            }
 
-        public async Task<List<Attendance>> GetAllAsync(int pageNumber, int pageSize)
-        {
-            return await _context.Attendances.AsNoTracking()
-                                              .Include(a => a.Employee)
-                                              .OrderByDescending(a => a.CheckInTime)
+            if (model.Date.HasValue)
+            {
+                queryable = queryable.Where(a => a.AttendanceDate == model.Date);
+            }
+
+            if(model.StartDate.HasValue && model.EndDate.HasValue)
+            {
+                queryable = queryable.Where(a => a.AttendanceDate >= model.StartDate || a.AttendanceDate <= model.EndDate);
+            }
+
+
+            return await queryable.Include(a => a.Employee)       
+                                            .OrderByDescending(a => a.CheckInTime)
                                               .ThenByDescending(a => a.Id)
                                               .Skip((pageNumber -1) * pageSize)
                                               .Take(pageSize)
                                               .ToListAsync();
+                                              
         }
 
         public async Task<Attendance?> GetByIdAsync(int id)
