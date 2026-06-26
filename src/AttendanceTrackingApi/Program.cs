@@ -39,11 +39,12 @@ builder.Services.AddIdentity<Admin, IdentityRole>()
 //App services
 builder.Services.AddScoped<IEmployeeServices ,EmployeeService>();
 builder.Services.AddScoped<IAdminService , AdminService>();
+builder.Services.AddScoped<IAttendanceService , AttendanceService>();
 
 //Repository services
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
-
+builder.Services.AddScoped<IAttendanceRepository, AttendanceRepository>();
 
 //Jwt Options
 builder.Services.Configure<JwtOptions>( o =>
