@@ -19,8 +19,13 @@ namespace AttendanceTrackingApi.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] AttendanceQueryParameters model , [FromQuery] int pageNumber = 1 , [FromQuery] int pageSize = 10)
         {
-            var results = await _attendanceService.GetAllAsync(model , pageNumber , pageSize);
-            return results.Success ? Ok(results) : NotFound(results);
+            if (ModelState.IsValid)
+            {
+                var results = await _attendanceService.GetAllAsync(model , pageNumber , pageSize);
+                return results.Success ? Ok(results) : NotFound(results);
+            }
+
+            return BadRequest(ModelState);
         }
 
         [HttpGet("{id:int}")]

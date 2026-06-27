@@ -17,7 +17,14 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-DotNetEnv.Env.Load();
+var envPath = Path.Combine(builder.Environment.ContentRootPath, ".env");
+if (File.Exists(envPath))
+{
+    DotNetEnv.Env.Load(envPath);
+}
+else{
+    Console.WriteLine("No .env found");
+}
 builder.Configuration.AddEnvironmentVariables();
 
 builder.Services.AddControllers();
@@ -70,7 +77,7 @@ builder.Services.AddStackExchangeRedisCache(options =>
     options.InstanceName = "attendance-tracking-api:";
 });
 
-
+Console.WriteLine("E hard ruff" + builder.Configuration["JWT_SECRET"]);
 //Jwt Authentication
 builder.Services.AddAuthentication( o =>
 {
