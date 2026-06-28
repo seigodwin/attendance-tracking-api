@@ -5,11 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 namespace AttendanceTrackingApi.Controllers
 {
     [ApiController]
-    [Route("api/v1/admin")]
-    public class AdminController : ControllerBase
+    [Route("api/v1/auth")]
+    public class AuthController : ControllerBase
     {
         private readonly IAdminService _adminService;
-        public AdminController(IAdminService adminService)
+        public AuthController(IAdminService adminService)
         {
             _adminService = adminService;
         }
