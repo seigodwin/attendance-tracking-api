@@ -34,6 +34,30 @@ namespace AttendanceTrackingApi.Controllers
             var results = await _attendanceService.GetByIdAsync(id);
             return results.Success ? Ok(results) : NotFound(results);
         }
+
+        [HttpPost("check-in")]
+        public async Task<IActionResult> CheckIn(CheckInOrOutRequestDto dto)
+        {
+            if(dto is not null && ModelState.IsValid)
+            {
+                var results = await _attendanceService.CheckInAsync(dto);
+                return results.Success ? Ok(results) : NotFound(results);
+            }
+
+            return BadRequest(ModelState);
+        }
+
+        [HttpPost("check-out")]
+        public async Task<IActionResult> CheckOut(CheckInOrOutRequestDto dto)
+        {
+            if(dto is not null && ModelState.IsValid)
+            {
+                var results = await _attendanceService.CheckoutAsync(dto);
+                return results.Success ? Ok(results) : NotFound(results);
+            }
+
+            return BadRequest(ModelState);
+        }
        
     }   
 }

@@ -152,13 +152,14 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
                 if (!records.Any())
                 {
                     response.Success = false;
-                    response.Message = "Data not found for the specified department";
+                    response.Message = "Data not found";
                     return response;
                 }
 
                 response.Data = records.Select(r => new GetAttendanceResponseDto
                     {
                         Id = r.Id,
+                        EmployeeId = r.EmployeeId,
                         EmployeeFirstName = r.Employee.FirstName,
                         EmployeeLastName = r.Employee.LastName,
                         EmployeeDepartment = r.Employee.Department,
@@ -195,6 +196,7 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
                 response.Data =  new GetAttendanceResponseDto
                 {
                     Id = record.Id,
+                    EmployeeId = record.EmployeeId,
                     EmployeeFirstName = record.Employee.FirstName,
                     EmployeeLastName = record.Employee.LastName,
                     EmployeeDepartment = record.Employee.Department,

@@ -36,7 +36,7 @@ namespace AttendanceTrackingApi.DbContext
                 Email = "seigodwin65@gmail.com",
                 PhoneNumber = "0540580393",
                 Department = "IT",
-                StaffId = "Ghmis01"
+                StaffId = "Ghims01"
             },
 
               new Employee
