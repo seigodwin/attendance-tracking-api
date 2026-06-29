@@ -1,5 +1,7 @@
 
+using AttendanceTrackingApi.Dtos.Domain.Dtos.AuthDtos;
 using AttendanceTrackingApi.Services.Application.Interfaces;
+using AttendanceTrackingApi.Services.Auth.Interface;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AttendanceTrackingApi.Controllers
@@ -9,9 +11,12 @@ namespace AttendanceTrackingApi.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAdminService _adminService;
-        public AuthController(IAdminService adminService)
+        private readonly IAuthService _authService;
+
+        public AuthController(IAdminService adminService, IAuthService authService)
         {
             _adminService = adminService;
+            _authService = authService;
         }
 
         [HttpPost("register")]
@@ -60,6 +65,54 @@ namespace AttendanceTrackingApi.Controllers
         {
             var response = await _adminService.DeleteAsync(id);
             return response.Success ? NoContent() : BadRequest(response);
+        }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginRequestDto dto)
+        {
+            if (dto is not null && ModelState.IsValid)
+            {
+                var response = await _authService.LoginAsync(dto);
+                return response.Success ? Ok(response) : Unauthorized(response);
+            }
+
+            return BadRequest(ModelState);
+        }
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequestDto dto)
+        {
+            if (dto is not null && ModelState.IsValid)
+            {
+                var response = await _authService.ForgotPasswordAsync(dto);
+                return response.Success ? Ok(response) : BadRequest(response);
+            }
+
+            return BadRequest(ModelState);
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequestDto dto)
+        {
+            if (dto is not null && ModelState.IsValid)
+            {
+                var response = await _authService.ResetPasswordAsync(dto);
+                return response.Success ? Ok(response) : BadRequest(response);
+            }
+
+            return BadRequest(ModelState);
+        }
+
+        [HttpPost("change-password")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequestDto dto)
+        {
+            if (dto is not null && ModelState.IsValid)
+            {
+                var response = await _authService.ChangePasswordAsync(dto);
+                return response.Success ? Ok(response) : BadRequest(response);
+            }
+
+            return BadRequest(ModelState);
         }
     }
 }
