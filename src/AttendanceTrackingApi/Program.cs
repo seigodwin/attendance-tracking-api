@@ -3,6 +3,8 @@ using AttendanceTrackingApi.DbContext;
 using AttendanceTrackingApi.Options;
 using AttendanceTrackingApi.Services.Application.Implimentations;
 using AttendanceTrackingApi.Services.Application.Interfaces;
+using AttendanceTrackingApi.Services.Auth.Implimentations;
+using AttendanceTrackingApi.Services.Auth.Interface;
 using AttendanceTrackingApi.Services.Repository.Implimentations;
 using AttendanceTrackingApi.Services.Repository.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -41,6 +43,8 @@ builder.Services.AddIdentity<Admin, IdentityRole>()
 builder.Services.AddScoped<IEmployeeServices ,EmployeeService>();
 builder.Services.AddScoped<IAdminService , AdminService>();
 builder.Services.AddScoped<IAttendanceService , AttendanceService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
 
 //Repository services
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
@@ -59,10 +63,8 @@ builder.Services.Configure<JwtOptions>( o =>
 
 var redisHost = builder.Configuration["REDIS_HOST"] ?? throw new InvalidOperationException("Redis connection string is not configured");
 
-//Configure IStackExchangeRedis Cache
-// builder.Services.AddSingleton<IConnectionMultiplexer>(
-//     ConnectionMultiplexer.Connect(redisHost)
-// );
+//Configure Redis connection for auth services
+builder.Services.AddSingleton<IConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(redisHost));
 
 //Configure IDistributedCacheRedis 
 builder.Services.AddStackExchangeRedisCache(options =>
