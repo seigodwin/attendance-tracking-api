@@ -48,7 +48,7 @@ namespace AttendanceTrackingApi.Controllers
             return response.Success ? Ok(response) : NotFound(response);
         }
 
-        [HttpGet("{id:string}")]
+        [HttpGet("{id}")]
         public async Task<IActionResult> GetById([FromRoute] string id)
         {
             var response = await _adminService.GetByIdAsync(id);

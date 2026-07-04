@@ -41,7 +41,7 @@ namespace AttendanceTrackingApi.Controllers
             if(dto is not null && ModelState.IsValid)
             {
                 var results = await _attendanceService.CheckInAsync(dto);
-                return results.Success ? Ok(results) : NotFound(results);
+                return results.Success ? Ok(results) : BadRequest(results);
             }
 
             return BadRequest(ModelState);
@@ -53,7 +53,7 @@ namespace AttendanceTrackingApi.Controllers
             if(dto is not null && ModelState.IsValid)
             {
                 var results = await _attendanceService.CheckoutAsync(dto);
-                return results.Success ? Ok(results) : NotFound(results);
+                return results.Success ? Ok(results) : BadRequest(results);
             }
 
             return BadRequest(ModelState);
