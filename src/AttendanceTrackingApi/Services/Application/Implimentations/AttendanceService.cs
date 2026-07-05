@@ -6,6 +6,7 @@ using AttendanceTrackingApi.Services.Application.Interfaces;
 using AttendanceTrackingApi.Services.Repository.Interfaces;
 using AttendanceTrackingApi.Utilities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace AttendanceTrackingApi.Services.Application.Implimentations
 {
@@ -13,10 +14,27 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
     {
         private readonly IAttendanceRepository _attendanceRepository;
         private readonly AppDbContext _context;
-        public AttendanceService(IAttendanceRepository attendanceRepository, AppDbContext context)
+        private readonly ILogger<AttendanceService> _logger;
+
+        public AttendanceService(IAttendanceRepository attendanceRepository, AppDbContext context, ILogger<AttendanceService> logger)
         {
             _attendanceRepository = attendanceRepository;
             _context = context;
+            _logger = logger;
+        }
+
+        private static string BuildExceptionDetails(Exception exception)
+        {
+            var details = new List<string>();
+            var current = exception;
+
+            while (current is not null)
+            {
+                details.Add($"{current.GetType().Name}: {current.Message}");
+                current = current.InnerException;
+            }
+
+            return string.Join(" -> ", details);
         }
 
         public async Task<BaseResponse<string>> CheckInAsync(CheckInOrOutRequestDto dto)
@@ -74,8 +92,9 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
 
             catch(Exception ex)
             {
+                _logger.LogError(ex, "An error occurred while checking in attendance for email {Email}. Exception chain: {ExceptionDetails}", dto?.Email, BuildExceptionDetails(ex));
                 response.Success = false;
-                response.Message = $"Check in failed: {ex.Message}";
+                response.Message = "Check in failed. Please try again later.";
             }
 
             return response;
@@ -131,8 +150,9 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
 
             catch(Exception ex)
             {
+                _logger.LogError(ex, "An error occurred while checking out attendance for email {Email}. Exception chain: {ExceptionDetails}", dto?.Email, BuildExceptionDetails(ex));
                 response.Success = false;
-                response.Message = $"Check out failed: {ex.Message}";
+                response.Message = "Check out failed. Please try again later.";
             }
 
             return response;
@@ -173,8 +193,9 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
 
             catch(Exception ex)
             {
+                _logger.LogError(ex, "An error occurred while fetching attendance records. PageNumber: {PageNumber}, PageSize: {PageSize}. Exception chain: {ExceptionDetails}", pageNumber, PageSize, BuildExceptionDetails(ex));
                 response.Success = false;
-                response.Message = $"Failed to fetch records: {ex.Message}";
+                response.Message = "Unable to fetch attendance records at the moment.";
             }
             return response;
         }
@@ -210,8 +231,9 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
 
             catch(Exception ex)
             {
+                _logger.LogError(ex, "An error occurred while fetching attendance record with id {AttendanceId}. Exception chain: {ExceptionDetails}", id, BuildExceptionDetails(ex));
                 response.Success = false;
-                response.Message = $"Failed to fetch records: {ex.Message}";
+                response.Message = "Unable to fetch the attendance record at the moment.";
             }
 
             return response;

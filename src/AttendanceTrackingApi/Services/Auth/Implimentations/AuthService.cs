@@ -4,6 +4,7 @@ using AttendanceTrackingApi.Dtos.Domain.Dtos.AuthDtos;
 using AttendanceTrackingApi.Services.Auth.Interface;
 using AttendanceTrackingApi.Utilities;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
 
 namespace AttendanceTrackingApi.Services.Auth.Implimentations
@@ -13,12 +14,28 @@ namespace AttendanceTrackingApi.Services.Auth.Implimentations
         private readonly UserManager<Admin> _userManager;
         private readonly ITokenService _tokenService;
         private readonly IDatabase _redis;
+        private readonly ILogger<AuthService> _logger;
 
-        public AuthService(UserManager<Admin> userManager, IConnectionMultiplexer redis, ITokenService tokenService)
+        public AuthService(UserManager<Admin> userManager, IConnectionMultiplexer redis, ITokenService tokenService, ILogger<AuthService> logger)
         {
             _userManager = userManager;
             _tokenService = tokenService;
             _redis = redis.GetDatabase();
+            _logger = logger;
+        }
+
+        private static string BuildExceptionDetails(Exception exception)
+        {
+            var details = new List<string>();
+            var current = exception;
+
+            while (current is not null)
+            {
+                details.Add($"{current.GetType().Name}: {current.Message}");
+                current = current.InnerException;
+            }
+
+            return string.Join(" -> ", details);
         }
 
         public async Task<BaseResponse<string>> ChangePasswordAsync(ChangePasswordRequestDto dto)
@@ -63,8 +80,9 @@ namespace AttendanceTrackingApi.Services.Auth.Implimentations
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "An error occurred while changing password for email {Email}. Exception chain: {ExceptionDetails}", dto?.EmailAddress, BuildExceptionDetails(ex));
                 response.Success = false;
-                response.Message = $"Failed to change password: {ex.Message}";
+                response.Message = "Failed to change password. Please try again later.";
             }
 
             return response;
@@ -105,8 +123,9 @@ namespace AttendanceTrackingApi.Services.Auth.Implimentations
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "An error occurred while processing forgot password for email {Email}. Exception chain: {ExceptionDetails}", dto?.Email, BuildExceptionDetails(ex));
                 response.Success = false;
-                response.Message = $"Failed to process forgot password request: {ex.Message}";
+                response.Message = "Failed to process forgot password request. Please try again later.";
             }
 
             return response;
@@ -160,8 +179,9 @@ namespace AttendanceTrackingApi.Services.Auth.Implimentations
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "An error occurred while logging in user {UserName}. Exception chain: {ExceptionDetails}", dto?.UserName, BuildExceptionDetails(ex));
                 response.Success = false;
-                response.Message = $"Login failed: {ex.Message}";
+                response.Message = "Login failed. Please try again later.";
             }
 
             return response;
@@ -221,8 +241,9 @@ namespace AttendanceTrackingApi.Services.Auth.Implimentations
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "An error occurred while resetting password. Exception chain: {ExceptionDetails}", BuildExceptionDetails(ex));
                 response.Success = false;
-                response.Message = $"Failed to reset password: {ex.Message}";
+                response.Message = "Failed to reset password. Please try again later.";
             }
 
             return response;

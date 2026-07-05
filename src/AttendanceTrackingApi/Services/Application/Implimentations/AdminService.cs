@@ -2,15 +2,33 @@
 using AttendanceTrackingApi.Services.Application.Interfaces;
 using AttendanceTrackingApi.Services.Repository.Interfaces;
 using AttendanceTrackingApi.Utilities;
+using Microsoft.Extensions.Logging;
 
 namespace AttendanceTrackingApi.Services.Application.Implimentations
 {
     public class AdminService : IAdminService
     {
         private readonly IAdminRepository _adminRepository;
-        public AdminService(IAdminRepository adminRepository)
+        private readonly ILogger<AdminService> _logger;
+
+        public AdminService(IAdminRepository adminRepository, ILogger<AdminService> logger)
         {
             _adminRepository = adminRepository;
+            _logger = logger;
+        }
+
+        private static string BuildExceptionDetails(Exception exception)
+        {
+            var details = new List<string>();
+            var current = exception;
+
+            while (current is not null)
+            {
+                details.Add($"{current.GetType().Name}: {current.Message}");
+                current = current.InnerException;
+            }
+
+            return string.Join(" -> ", details);
         }
 
         public async Task<BaseResponse<string>> DeleteAsync(string id)
@@ -34,8 +52,9 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
 
             catch(Exception ex)
             {
+                _logger.LogError(ex, "An error occurred while deleting admin with id {AdminId}. Exception chain: {ExceptionDetails}", id, BuildExceptionDetails(ex));
                 response.Success = false;
-                response.Message = $"Failed to delete admin: {ex.Message}";
+                response.Message = "Failed to delete admin. Please try again later.";
             }
 
             return response;
@@ -68,8 +87,9 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
 
             catch(Exception ex)
             {
+                _logger.LogError(ex, "An error occurred while retrieving admins. PageNumber: {PageNumber}, PageSize: {PageSize}. Exception chain: {ExceptionDetails}", pageNumber, pageSize, BuildExceptionDetails(ex));
                 response.Success = false;
-                response.Message = $"Failed to reftreive data: {ex.Message}";
+                response.Message = "Failed to retrieve admin data. Please try again later.";
             }
 
             return response;
@@ -104,8 +124,9 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
 
             catch(Exception ex)
             {
+                _logger.LogError(ex, "An error occurred while retrieving admin with id {AdminId}. Exception chain: {ExceptionDetails}", id, BuildExceptionDetails(ex));
                 response.Success = false;
-                response.Message = $"Failed to retrieve data {ex.Message}";
+                response.Message = "Failed to retrieve admin data. Please try again later.";
             }
             return response;
         }
@@ -163,8 +184,9 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
 
             catch(Exception ex)
             {
+                _logger.LogError(ex, "An error occurred while creating admin for email {Email}. Exception chain: {ExceptionDetails}", dto?.Email, BuildExceptionDetails(ex));
                 response.Success = false;
-                response.Message = $"Failed to create admin: {ex.Message}";
+                response.Message = "Failed to create admin. Please try again later.";
             }
             
             return response;
@@ -207,8 +229,9 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
 
             catch(Exception ex)
             {
+                _logger.LogError(ex, "An error occurred while updating admin with id {AdminId}. Exception chain: {ExceptionDetails}", id, BuildExceptionDetails(ex));
                 response.Success = false;
-                response.Message = $"Failed to update: {ex.Message}";
+                response.Message = "Failed to update admin. Please try again later.";
             }
 
             return response;

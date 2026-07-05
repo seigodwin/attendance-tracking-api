@@ -2,15 +2,33 @@
 using AttendanceTrackingApi.Services.Application.Interfaces;
 using AttendanceTrackingApi.Services.Repository.Interfaces;
 using AttendanceTrackingApi.Utilities;
+using Microsoft.Extensions.Logging;
 
 namespace AttendanceTrackingApi.Services.Application.Implimentations
 {
     public class EmployeeService : IEmployeeServices
     {
         private readonly IEmployeeRepository _employeeRepository;
-        public EmployeeService(IEmployeeRepository employeeRepository)
+        private readonly ILogger<EmployeeService> _logger;
+
+        public EmployeeService(IEmployeeRepository employeeRepository, ILogger<EmployeeService> logger)
         {
             _employeeRepository = employeeRepository;
+            _logger = logger;
+        }
+
+        private static string BuildExceptionDetails(Exception exception)
+        {
+            var details = new List<string>();
+            var current = exception;
+
+            while (current is not null)
+            {
+                details.Add($"{current.GetType().Name}: {current.Message}");
+                current = current.InnerException;
+            }
+
+            return string.Join(" -> ", details);
         }
         public async Task<BaseResponse<string>> DeleteAsync(int id)
         {
@@ -32,7 +50,9 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
 
             catch(Exception ex)
             {
-                response.Message = $"Failed to delete employee: {ex.Message}";
+                _logger.LogError(ex, "An error occurred while deleting employee with id {EmployeeId}. Exception chain: {ExceptionDetails}", id, BuildExceptionDetails(ex));
+                response.Success = false;
+                response.Message = "Failed to delete employee. Please try again later.";
             }
             return response;
         }
@@ -70,10 +90,11 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
 
             }
 
-            catch( Exception ex)
+            catch(Exception ex)
             {
+                _logger.LogError(ex, "An error occurred while retrieving employees. PageNumber: {PageNumber}, PageSize: {PageSize}. Exception chain: {ExceptionDetails}", pageNumber, pageSize, BuildExceptionDetails(ex));
                 response.Success = false;
-                response.Message = $"An error occured: {ex.Message}";
+                response.Message = "An error occurred while retrieving employees. Please try again later.";
             }
 
             return response;
@@ -108,8 +129,9 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
 
             catch(Exception ex)
             {
-                response.Message = $"Failed to fetch data: {ex.Message}";
+                _logger.LogError(ex, "An error occurred while retrieving employee with id {EmployeeId}. Exception chain: {ExceptionDetails}", id, BuildExceptionDetails(ex));
                 response.Success = false;
+                response.Message = "Failed to fetch employee data. Please try again later.";
             }
 
             return response;
@@ -154,8 +176,9 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
             }
             catch(Exception ex)
             {
-                response.Message = $"Failed to create employee: {ex.Message}";
+                _logger.LogError(ex, "An error occurred while creating employee for email {Email}. Exception chain: {ExceptionDetails}", dto?.Email, BuildExceptionDetails(ex));
                 response.Success = false;
+                response.Message = "Failed to create employee. Please try again later.";
             }
 
             return response;
@@ -190,8 +213,9 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
             }
             catch(Exception ex)
             {
+                _logger.LogError(ex, "An error occurred while updating employee with id {EmployeeId}. Exception chain: {ExceptionDetails}", id, BuildExceptionDetails(ex));
                 response.Success = false;
-                response.Message = $"Update failed: {ex.Message}";
+                response.Message = "Update failed. Please try again later.";
             }
 
             return response;
