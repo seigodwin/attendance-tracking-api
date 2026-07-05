@@ -61,7 +61,7 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
                     FirstName = e.FirstName,
                     LastName = e.LastName,
                     Email = e.Email,
-                    
+                    StaffId = e.StaffId,
                     PhoneNumber = e.PhoneNumber,
                     Department = e.Department
                 }).ToList();
@@ -99,6 +99,7 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
                     FirstName = employee.FirstName,
                     LastName = employee.LastName,
                     Email = employee.Email,
+                    StaffId = employee.StaffId,
                     PhoneNumber = employee.PhoneNumber,
                     Department = employee.Department
                 };
@@ -125,7 +126,6 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
                 return response;
             }
 
-
             Employee employee = new()
             {
                 FirstName = dto.FirstName,
@@ -147,6 +147,7 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
                     LastName = employee.LastName,
                     Email = employee.Email,
                     PhoneNumber = employee.PhoneNumber,
+                    StaffId = employee.StaffId,
                     Department = employee.Department
                 };
                 response.Message = "Employee created successfully";
@@ -187,7 +188,6 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
 
                 response.Message = "Update successful";
             }
-
             catch(Exception ex)
             {
                 response.Success = false;

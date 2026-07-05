@@ -1,4 +1,3 @@
-using System.Text;
 using AttendanceTrackingApi.DbContext;
 using AttendanceTrackingApi.Options;
 using AttendanceTrackingApi.Services.Application.Implimentations;
@@ -13,7 +12,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
+using Serilog;
+using Serilog.AspNetCore;
 using StackExchange.Redis;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -73,7 +75,7 @@ builder.Services.AddStackExchangeRedisCache(options =>
     options.InstanceName = "attendance-tracking-api:";
 });
 
-Console.WriteLine("E hard ruff" + builder.Configuration["JWT_SECRET"]);
+
 //Jwt Authentication
 builder.Services.AddAuthentication( o =>
 {
@@ -93,6 +95,22 @@ builder.Services.AddAuthentication( o =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT_SECRET"] ?? throw new InvalidOperationException("Jwt secret not configured"))) 
     };
 });
+
+//Serilog
+var loggerConfig = new LoggerConfiguration()
+.MinimumLevel.Information()
+.WriteTo.Console();
+
+if (builder.Environment.IsDevelopment())
+{
+    loggerConfig.WriteTo.Seq(
+        builder.Configuration["SEQ_CONNECTION_STRING"]
+        ?? throw new InvalidOperationException("SEQ_CONNECTION_STRING is not configured."));
+}
+
+Serilog.Log.Logger = loggerConfig.CreateLogger();
+
+builder.Host.UseSerilog();
 
 builder.Services.AddAuthorization();
 

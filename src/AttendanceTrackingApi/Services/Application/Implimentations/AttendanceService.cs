@@ -48,7 +48,7 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
 
 
             var activeSignIn = await _context.Attendances.AsNoTracking()
-                                                        .FirstOrDefaultAsync(a => a.Id == user.Id);
+                                                        .FirstOrDefaultAsync(a => a.EmployeeId == user.Id);
             if(activeSignIn?.CheckInTime is not null)
             {
                 response.Success = false;
