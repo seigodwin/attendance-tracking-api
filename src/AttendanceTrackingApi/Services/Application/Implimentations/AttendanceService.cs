@@ -135,19 +135,14 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
             var currentDateTime = DateTime.Now;
 
             var todayAttendance = await _context.Attendances
-            .FirstOrDefaultAsync(a => a.EmployeeId == employee.Id && a.AttendanceDate == DateOnly.FromDateTime(currentDateTime));
+            .Where(a => a.EmployeeId == employee.Id 
+            && a.AttendanceDate == DateOnly.FromDateTime(currentDateTime) && a.CheckOutTime == null)
+            .FirstOrDefaultAsync();
 
-            if(todayAttendance is null)
+            if(todayAttendance == null)
             {
                 response.Success = false;
                 response.Message = "No active check in found. Please check in and try agian";
-                return response;
-            }
-
-            if(todayAttendance.CheckOutTime is not null)
-            {
-                response.Success = false;
-                response.Message = "You have an active checkout. Please check in and try again";
                 return response;
             }
 
