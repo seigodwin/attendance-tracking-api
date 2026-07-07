@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AttendanceTrackingApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260624130812_AttendanceTable2")]
-    partial class AttendanceTable2
+    [Migration("20260707134927_First")]
+    partial class First
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -127,27 +127,34 @@ namespace AttendanceTrackingApi.Migrations
 
             modelBuilder.Entity("AttendanceTrackingApi.Domain.Entities.Attendance", b =>
                 {
-                    b.Property<int>("id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("id");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime?>("CheckInTime")
-                        .HasColumnType("timestamp with time zone")
+                    b.Property<DateOnly>("AttendanceDate")
+                        .HasColumnType("date")
+                        .HasColumnName("attendanceDate");
+
+                    b.Property<TimeOnly>("CheckInTime")
+                        .HasColumnType("time without time zone")
                         .HasColumnName("checkInTime");
 
-                    b.Property<DateTime?>("CheckOutTime")
-                        .HasColumnType("timestamp with time zone")
+                    b.Property<TimeOnly?>("CheckOutTime")
+                        .HasColumnType("time without time zone")
                         .HasColumnName("checkOutTime");
 
                     b.Property<int>("EmployeeId")
                         .HasColumnType("integer")
                         .HasColumnName("employeeId");
 
-                    b.HasKey("id")
+                    b.HasKey("Id")
                         .HasName("pK_attendances");
+
+                    b.HasIndex("AttendanceDate")
+                        .HasDatabaseName("iX_attendances_attendanceDate");
 
                     b.HasIndex("EmployeeId")
                         .HasDatabaseName("iX_attendances_employeeId");
@@ -157,12 +164,12 @@ namespace AttendanceTrackingApi.Migrations
 
             modelBuilder.Entity("Employee", b =>
                 {
-                    b.Property<int>("id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("id");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Department")
                         .IsRequired()
@@ -192,8 +199,16 @@ namespace AttendanceTrackingApi.Migrations
                         .HasColumnType("text")
                         .HasColumnName("phoneNumber");
 
-                    b.HasKey("id")
+                    b.Property<string>("StaffId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("staffId");
+
+                    b.HasKey("Id")
                         .HasName("pK_employees");
+
+                    b.HasIndex("Department")
+                        .HasDatabaseName("iX_employees_department");
 
                     b.HasIndex("Email")
                         .IsUnique()
@@ -204,30 +219,33 @@ namespace AttendanceTrackingApi.Migrations
                     b.HasData(
                         new
                         {
-                            id = 1,
+                            Id = 1,
                             Department = "IT",
                             Email = "seigodwin65@gmail.com",
                             FirstName = "Sei",
                             LastName = "Godwin",
-                            PhoneNumber = "0540580393"
+                            PhoneNumber = "0540580393",
+                            StaffId = "Ghims01"
                         },
                         new
                         {
-                            id = 2,
+                            Id = 2,
                             Department = "Reception",
                             Email = "ray65@gmail.com",
                             FirstName = "Sei",
                             LastName = "Ray",
-                            PhoneNumber = "0540580393"
+                            PhoneNumber = "0540580393",
+                            StaffId = "Ghims02"
                         },
                         new
                         {
-                            id = 3,
+                            Id = 3,
                             Department = "IT",
                             Email = "jane65@gmail.com",
                             FirstName = "Sei",
                             LastName = "Jane",
-                            PhoneNumber = "0540580393"
+                            PhoneNumber = "0540580393",
+                            StaffId = "Ghims03"
                         });
                 });
 
@@ -397,14 +415,14 @@ namespace AttendanceTrackingApi.Migrations
 
             modelBuilder.Entity("AttendanceTrackingApi.Domain.Entities.Attendance", b =>
                 {
-                    b.HasOne("Employee", "employee")
+                    b.HasOne("Employee", "Employee")
                         .WithMany("Attendances")
                         .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fK_attendances_employees_employeeId");
 
-                    b.Navigation("employee");
+                    b.Navigation("Employee");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

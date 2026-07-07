@@ -28,23 +28,26 @@ namespace AttendanceTrackingApi.Services.Repository.Implimentations
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<Attendance>> GetAllAsync(AttendanceQueryParameters model , int pageNumber, int pageSize)
+        public async Task<List<Attendance>> GetAllAsync(AttendanceQueryParameters? model , int pageNumber, int pageSize)
         {
             var queryable = _context.Attendances.AsNoTracking();
 
-            if (!string.IsNullOrEmpty(model.DepartmentName))
+            if(model is not null)
             {
-                queryable = queryable.Where(a => a.Employee.Department == model.DepartmentName);
-            }
+                if (!string.IsNullOrEmpty(model.DepartmentName))
+                {
+                    queryable = queryable.Where(a => a.Employee.Department == model.DepartmentName);
+                }
 
-            if (model.Date.HasValue)
-            {
-                queryable = queryable.Where(a => a.AttendanceDate == model.Date);
-            }
+                if (model.Date.HasValue)
+                {
+                    queryable = queryable.Where(a => a.AttendanceDate == model.Date);
+                }
 
-            if(model.StartDate.HasValue && model.EndDate.HasValue)
-            {
-                queryable = queryable.Where(a => a.AttendanceDate >= model.StartDate || a.AttendanceDate <= model.EndDate);
+                if (model.StartDate.HasValue && model.EndDate.HasValue)
+                {
+                    queryable = queryable.Where(a => a.AttendanceDate >= model.StartDate || a.AttendanceDate <= model.EndDate);
+                }
             }
 
 

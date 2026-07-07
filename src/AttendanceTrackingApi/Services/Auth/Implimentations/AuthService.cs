@@ -217,7 +217,7 @@ namespace AttendanceTrackingApi.Services.Auth.Implimentations
                     return response;
                 }
 
-                var user = await _userManager.FindByIdAsync(userId);
+                var user = await _userManager.FindByIdAsync(userId!);
 
                 if (user is null)
                 {

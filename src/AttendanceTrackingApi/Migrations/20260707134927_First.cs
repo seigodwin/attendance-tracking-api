@@ -64,7 +64,9 @@ namespace AttendanceTrackingApi.Migrations
                     firstName = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     lastName = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     email = table.Column<string>(type: "text", nullable: false),
-                    phoneNumber = table.Column<string>(type: "text", nullable: false)
+                    staffId = table.Column<string>(type: "text", nullable: false),
+                    phoneNumber = table.Column<string>(type: "text", nullable: false),
+                    department = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -177,14 +179,36 @@ namespace AttendanceTrackingApi.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "attendances",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    employeeId = table.Column<int>(type: "integer", nullable: false),
+                    checkInTime = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
+                    checkOutTime = table.Column<TimeOnly>(type: "time without time zone", nullable: true),
+                    attendanceDate = table.Column<DateOnly>(type: "date", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pK_attendances", x => x.id);
+                    table.ForeignKey(
+                        name: "fK_attendances_employees_employeeId",
+                        column: x => x.employeeId,
+                        principalTable: "employees",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.InsertData(
                 table: "employees",
-                columns: new[] { "id", "email", "firstName", "lastName", "phoneNumber" },
+                columns: new[] { "id", "department", "email", "firstName", "lastName", "phoneNumber", "staffId" },
                 values: new object[,]
                 {
-                    { 1, "seigodwin65@gmail.com", "Sei", "Godwin", "0540580393" },
-                    { 2, "ray65@gmail.com", "Sei", "Ray", "0540580393" },
-                    { 3, "jane65@gmail.com", "Sei", "Jane", "0540580393" }
+                    { 1, "IT", "seigodwin65@gmail.com", "Sei", "Godwin", "0540580393", "Ghims01" },
+                    { 2, "Reception", "ray65@gmail.com", "Sei", "Ray", "0540580393", "Ghims02" },
+                    { 3, "IT", "jane65@gmail.com", "Sei", "Jane", "0540580393", "Ghims03" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -219,10 +243,37 @@ namespace AttendanceTrackingApi.Migrations
                 column: "normalizedEmail");
 
             migrationBuilder.CreateIndex(
+                name: "iX_AspNetUsers_email",
+                table: "AspNetUsers",
+                column: "email",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "iX_AspNetUsers_phoneNumber",
+                table: "AspNetUsers",
+                column: "phoneNumber",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "UserNameIndex",
                 table: "AspNetUsers",
                 column: "normalizedUserName",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "iX_attendances_attendanceDate",
+                table: "attendances",
+                column: "attendanceDate");
+
+            migrationBuilder.CreateIndex(
+                name: "iX_attendances_employeeId",
+                table: "attendances",
+                column: "employeeId");
+
+            migrationBuilder.CreateIndex(
+                name: "iX_employees_department",
+                table: "employees",
+                column: "department");
 
             migrationBuilder.CreateIndex(
                 name: "iX_employees_email",
@@ -250,13 +301,16 @@ namespace AttendanceTrackingApi.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "employees");
+                name: "attendances");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "employees");
         }
     }
 }

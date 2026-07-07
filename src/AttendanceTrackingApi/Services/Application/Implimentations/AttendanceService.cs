@@ -40,7 +40,7 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
         public async Task<BaseResponse<string>> CheckInAsync(CheckInOrOutRequestDto dto)
         {
             var response = new BaseResponse<string>();
-            if(dto is null)
+            if(dto is null || string.IsNullOrEmpty(dto.Email) || string.IsNullOrEmpty(dto.StaffId) )
             {
                 response.Success = false;
                 response.Message = "Provide valid data to continue";
@@ -50,7 +50,7 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
             var user = await _context.Employees.AsNoTracking()
                                                .FirstOrDefaultAsync(e => e.Email == dto.Email);
 
-            if(user is null || string.IsNullOrEmpty(dto.Email) || string.IsNullOrEmpty(dto.StaffId))
+            if(user is null)
             {
                 response.Success = false;
                 response.Message = "Account not found";
@@ -66,8 +66,13 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
 
 
             var activeSignIn = await _context.Attendances.AsNoTracking()
-                                                        .FirstOrDefaultAsync(a => a.EmployeeId == user.Id);
-            if(activeSignIn?.CheckInTime is not null)
+                                                        .Where(a => a.EmployeeId == user.Id 
+                                                        && a.AttendanceDate == DateOnly.FromDateTime(DateTime.Now)
+                                                        && a.CheckOutTime == null)
+                                                        .FirstOrDefaultAsync();
+
+
+            if (activeSignIn != null)
             {
                 response.Success = false;
                 response.Message = "User has an active check in. Please check out and try again";
@@ -87,7 +92,7 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
             {
                 await _attendanceRepository.AddAsync(attendance);
 
-                response.Message = "Check in Successful";
+                response.Message = "Check in Successfully";
             }
 
             catch(Exception ex)
@@ -117,6 +122,13 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
             {
                 response.Success = false;
                 response.Message = "User not found";
+                return response;
+            }
+
+            if (employee.StaffId != dto.StaffId)
+            {
+                response.Success = false;
+                response.Message = "Invalid email or staff Id";
                 return response;
             }
 
@@ -158,7 +170,7 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
             return response;
         }
 
-        public async Task<BaseResponse<List<GetAttendanceResponseDto>>> GetAllAsync(AttendanceQueryParameters model, int pageNumber = 1, int PageSize = 10)
+        public async Task<BaseResponse<List<GetAttendanceResponseDto>>> GetAllAsync(AttendanceQueryParameters? model, int pageNumber = 1, int PageSize = 10)
         {
             var response = new BaseResponse<List<GetAttendanceResponseDto>>();
 

@@ -13,7 +13,6 @@ using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using Serilog;
-using Serilog.AspNetCore;
 using StackExchange.Redis;
 using System.Text;
 
@@ -112,6 +111,17 @@ Serilog.Log.Logger = loggerConfig.CreateLogger();
 
 builder.Host.UseSerilog();
 
+//CORS configuration to allow requests from React app
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactApp", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173") 
+              .AllowAnyMethod()                     
+              .AllowAnyHeader();                    
+    });
+});
+
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
@@ -128,7 +138,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseCors("AllowReactApp");
 app.UseAuthentication();
 app.UseAuthorization();
 
