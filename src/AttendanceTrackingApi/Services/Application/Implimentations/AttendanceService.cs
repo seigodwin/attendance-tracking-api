@@ -170,7 +170,7 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
             var response = new BaseResponse<List<GetAttendanceResponseDto>>();
 
             pageNumber = pageNumber < 1 ? 1 : pageNumber;
-            PageSize = PageSize < 1 ? 1 : (PageSize < 30 ? 30 : PageSize);
+            PageSize = PageSize < 1 ? 1 : (PageSize > 30 ? 30 : PageSize);
 
             try
             {
@@ -194,6 +194,8 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
                         CheckOutTime = r.CheckOutTime,
                         AttendanceDate = r.AttendanceDate
                 }).ToList();
+
+
 
                 response.Message = "Records retrived successfully";
             }
