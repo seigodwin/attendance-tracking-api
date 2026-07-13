@@ -143,7 +143,7 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
             }
 
 
-            if(dto.PassWord != dto.ConfrimPassWord)
+            if(dto.Password != dto.ConfrimPassword)
             {
                 response.Success = false;
                 response.Message = "Passwords do not match";
@@ -161,7 +161,7 @@ namespace AttendanceTrackingApi.Services.Application.Implimentations
 
             try
             {
-                var createResult = await _adminRepository.AddAsync(admin, dto.PassWord);
+                var createResult = await _adminRepository.AddAsync(admin, dto.Password);
 
                 if (!createResult.Succeeded)
                 {

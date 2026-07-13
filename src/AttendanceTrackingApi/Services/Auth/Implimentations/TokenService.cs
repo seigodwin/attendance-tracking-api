@@ -96,7 +96,7 @@ namespace AttendanceTrackingApi.Services.Auth.Implimentations
 
                 return new AuthenticatedUserDto
                 {
-                    UserName = model.UserName ?? string.Empty,
+                    Email = model.UserName ?? string.Empty,
                     AccessToken = accessToken,
                     RefreshToken = refreshTokenValue,
                     AccessTokenExpiry = _jwtOptions.EXPIRATION 

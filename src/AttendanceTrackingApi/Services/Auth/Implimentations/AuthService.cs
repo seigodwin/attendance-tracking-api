@@ -144,24 +144,19 @@ namespace AttendanceTrackingApi.Services.Auth.Implimentations
                     return response;
                 }
 
-                if (string.IsNullOrWhiteSpace(dto.UserName) || string.IsNullOrWhiteSpace(dto.Password))
+                if (string.IsNullOrWhiteSpace(dto.Email) || string.IsNullOrWhiteSpace(dto.Password))
                 {
                     response.Success = false;
-                    response.Message = "Username and password are required";
+                    response.Message = "Invalid username or password";
                     return response;
                 }
 
-                var user = await _userManager.FindByNameAsync(dto.UserName);
-
-                if (user is null)
-                {
-                    user = await _userManager.FindByEmailAsync(dto.UserName);
-                }
+                var user = await _userManager.FindByEmailAsync(dto.Email);
 
                 if (user is null)
                 {
                     response.Success = false;
-                    response.Message = "Invalid credentials";
+                    response.Message = "User not found";
                     return response;
                 }
 
@@ -170,16 +165,17 @@ namespace AttendanceTrackingApi.Services.Auth.Implimentations
                 if (!isValidPassword)
                 {
                     response.Success = false;
-                    response.Message = "Invalid credentials";
+                    response.Message = "Incorrect password";
                     return response;
                 }
 
                 response.Data = await _tokenService.GenerateTokenPairAsync(user);
                 response.Message = "Login successful";
             }
+
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while logging in user {UserName}. Exception chain: {ExceptionDetails}", dto?.UserName, BuildExceptionDetails(ex));
+                _logger.LogError(ex, "An error occurred while logging in user {UserName}. Exception chain: {ExceptionDetails}", dto?.Email, BuildExceptionDetails(ex));
                 response.Success = false;
                 response.Message = "Login failed. Please try again later.";
             }

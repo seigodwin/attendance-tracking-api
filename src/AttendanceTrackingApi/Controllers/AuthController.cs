@@ -73,11 +73,12 @@ namespace AttendanceTrackingApi.Controllers
             if (dto is not null && ModelState.IsValid)
             {
                 var response = await _authService.LoginAsync(dto);
-                return response.Success ? Ok(response) : Unauthorized(response);
+                return response.Success ? Ok(response) : BadRequest(response);
             }
 
             return BadRequest(ModelState);
         }
+
 
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequestDto dto)

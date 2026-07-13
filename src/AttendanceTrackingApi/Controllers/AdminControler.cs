@@ -28,7 +28,7 @@ namespace AttendanceTrackingApi.Controllers
         }
 
         [HttpPut("update/{id}")]
-        public async Task<IActionResult> Update(string id , [FromBody] UpdateAdminRequestDto dto)
+        public async Task<IActionResult> Update([FromRoute] string id , [FromBody] UpdateAdminRequestDto dto)
         {
             if(dto is not null && ModelState.IsValid)
             {
